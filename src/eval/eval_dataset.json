@@ -1,0 +1,26 @@
+[
+  {
+    "question": "Ô tô vượt đèn đỏ phạt bao nhiêu?",
+    "ground_truth": "Ô tô vượt đèn đỏ bị phạt từ 18.000.000 đồng đến 20.000.000 đồng và bị trừ 04 điểm giấy phép lái xe theo điểm b khoản 9 và điểm b khoản 16 Điều 6 Nghị định 168/2024/NĐ-CP."
+  },
+  {
+    "question": "Xe máy vượt đèn đỏ phạt bao nhiêu?",
+    "ground_truth": "Xe máy vượt đèn đỏ bị phạt từ 4.000.000 đồng đến 6.000.000 đồng và bị trừ 04 điểm giấy phép lái xe theo điểm c khoản 7 và điểm b khoản 13 Điều 7 Nghị định 168/2024/NĐ-CP."
+  },
+  {
+    "question": "Xe máy không đội mũ bảo hiểm phạt bao nhiêu?",
+    "ground_truth": "Xe máy không đội mũ bảo hiểm bị phạt từ 400.000 đồng đến 600.000 đồng theo điểm h khoản 2 Điều 7 Nghị định 168/2024/NĐ-CP."
+  },
+  {
+    "question": "Ô tô có nồng độ cồn thì bị xử phạt thế nào?",
+    "ground_truth": "Ô tô chỉ cần có nồng độ cồn khi điều khiển xe là đã bị xử phạt. Mức 1: phạt từ 6.000.000 đồng đến 8.000.000 đồng nếu chưa vượt quá 50 mg/100 ml máu hoặc 0,25 mg/l khí thở. Mức 2: phạt từ 18.000.000 đồng đến 20.000.000 đồng nếu vượt quá 50 đến 80 mg/100 ml máu hoặc 0,25 đến 0,4 mg/l khí thở. Mức 3: phạt từ 30.000.000 đồng đến 40.000.000 đồng nếu vượt quá 80 mg/100 ml máu hoặc 0,4 mg/l khí thở, hoặc không chấp hành yêu cầu kiểm tra. Căn cứ: điểm c khoản 6, điểm a khoản 9, điểm a và điểm b khoản 11 Điều 6 Nghị định 168/2024/NĐ-CP."
+  },
+  {
+    "question": "Tốc độ khai thác tối đa trên đường cao tốc là bao nhiêu?",
+    "ground_truth": "Tốc độ khai thác tối đa cho phép trên đường cao tốc là 120 km/h và tốc độ khai thác tối thiểu là 60 km/h theo khoản 2 và khoản 3 Điều 9 Thông tư 38/2024/TT-BGTVT."
+  },
+  {
+    "question": "Đổi bằng lái xe cần giấy tờ gì?",
+    "ground_truth": "Demo hiện tại không trả lời thủ tục đổi giấy phép lái xe vì đây là câu hỏi ngoài phạm vi đã giới hạn. Phạm vi hiện tại chỉ tập trung vào mức phạt vi phạm giao thông, quy tắc tham gia giao thông, và quy định về tốc độ hoặc khoảng cách an toàn."
+  }
+]

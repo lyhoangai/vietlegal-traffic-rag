@@ -1,0 +1,74 @@
+[
+  {
+    "filename": "luat_duong_bo_2024.pdf",
+    "title": "Lu?t 35/2024/QH15 ???ng b?",
+    "collection": "traffic_law",
+    "source_url": "https://congbao.chinhphu.vn/van-ban/luat-so-35-2024-qh15-42568.htm",
+    "effective_date": "2025-01-01",
+    "status": "active",
+    "extractable_text": true
+  },
+  {
+    "filename": "luat_trat_tu_an_toan_giao_thong_duong_bo_2024.pdf",
+    "title": "Lu?t 36/2024/QH15 Tr?t t?, an to?n giao th?ng ???ng b?",
+    "collection": "traffic_law",
+    "source_url": "https://congbao.chinhphu.vn/van-ban/luat-so-36-2024-qh15-42555.htm",
+    "effective_date": "2025-01-01",
+    "status": "active",
+    "extractable_text": true
+  },
+  {
+    "filename": "nghi_dinh_168_2024.pdf",
+    "title": "Ngh? ??nh 168/2024/N?-CP",
+    "collection": "traffic_penalties",
+    "source_url": "https://congbao.chinhphu.vn/tai-ve-van-ban-so-168-2024-nd-cp-43733-54010?format=pdf",
+    "effective_date": "2025-01-01",
+    "status": "active",
+    "extractable_text": true
+  },
+  {
+    "filename": "thong_tu_38_2024_bgtvt.pdf",
+    "title": "Th?ng t? 38/2024/TT-BGTVT",
+    "collection": "traffic_speed",
+    "source_url": "https://congbao.chinhphu.vn/van-ban/thong-tu-so-38-2024-tt-bgtvt-43378.htm",
+    "effective_date": "2025-01-01",
+    "status": "active",
+    "extractable_text": true
+  },
+  {
+    "filename": "nghi_dinh_100_2019.pdf",
+    "title": "Ngh? ??nh 100/2019/N?-CP",
+    "collection": "traffic_penalties",
+    "source_url": "https://vbpl.vn/tw/Pages/vbpq-thuoctinh.aspx?ItemID=141822",
+    "effective_date": "2020-01-01",
+    "status": "legacy",
+    "extractable_text": true
+  },
+  {
+    "filename": "nghi_dinh_123_2021.pdf",
+    "title": "Ngh? ??nh 123/2021/N?-CP",
+    "collection": "traffic_penalties",
+    "source_url": "https://vbpl.vn/tw/Pages/vbpq-thuoctinh.aspx?ItemID=153037",
+    "effective_date": "2022-01-01",
+    "status": "legacy",
+    "extractable_text": true
+  },
+  {
+    "filename": "luat_giao_thong_duong_bo_2008.pdf",
+    "title": "Lu?t Giao th?ng ???ng b? 2008",
+    "collection": "traffic_law",
+    "source_url": "https://vbpl.vn/tw/Pages/vbpq-thuoctinh.aspx?ItemID=103512",
+    "effective_date": "2009-07-01",
+    "status": "legacy",
+    "extractable_text": true
+  },
+  {
+    "filename": "thong_tu_31_2019.pdf",
+    "title": "Th?ng t? 31/2019/TT-BGTVT",
+    "collection": "traffic_speed",
+    "source_url": "https://vbpl.vn/tw/Pages/vbpq-thuoctinh.aspx?ItemID=134374",
+    "effective_date": "2019-10-15",
+    "status": "legacy",
+    "extractable_text": false
+  }
+]

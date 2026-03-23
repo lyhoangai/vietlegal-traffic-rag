@@ -1,0 +1,729 @@
+﻿<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VietLegal Traffic RAG - Tư vấn Luật Giao thông</title>
+<style>
+:root{--bg:#0a0f1d;--panel:#111827cc;--line:#243244;--text:#e5eefc;--muted:#8ea2bf;--accent:#2563eb;--accent2:#0ea5e9;--ok:#10b981;--warn:#f59e0b;--red:#ef4444;--user:linear-gradient(135deg,#3b82f6,#2563eb);--ai:#172132cc}*{box-sizing:border-box}body{margin:0;font:14px/1.6 Inter,system-ui,sans-serif;color:var(--text);background:radial-gradient(circle at 20% 20%,#16325a55,transparent 30%),radial-gradient(circle at 80% 10%,#1f4c8f33,transparent 25%),linear-gradient(180deg,#08111f,#0b1220 60%,#0d1322);height:100vh;display:flex;flex-direction:column}header{display:flex;gap:14px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);backdrop-filter:blur(14px);background:#0f172ab3}.logo{width:42px;height:42px;border-radius:12px;background:var(--user);display:grid;place-items:center;font-size:21px;box-shadow:0 8px 24px #2563eb4d}.title h1{margin:0;font-size:18px}.title p{margin:2px 0 0;color:var(--muted);font-size:12px}.tools{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}select,button,.toggle{border:1px solid var(--line);background:#ffffff0b;color:var(--text);border-radius:10px;font:inherit}.tools select{min-width:220px;padding:8px 10px}button{cursor:pointer;padding:8px 10px}.toggle{display:flex;gap:8px;align-items:center;padding:8px 10px}.pill{padding:7px 10px;border-radius:999px;border:1px solid var(--line);background:#ffffff08;color:var(--muted);font-size:12px}.pill.ok{color:var(--ok)}.pill.warn{color:var(--warn)}#chat{flex:1;overflow:auto;padding:24px;display:flex;flex-direction:column;gap:18px}.welcome{max-width:760px;margin:auto;text-align:center}.welcome h2{margin:0 0 8px;font-size:26px}.welcome p{margin:0 auto 20px;max-width:520px;color:var(--muted)}.suggestions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}.suggestions button{background:#ffffff08}.msg{display:flex;gap:12px;max-width:820px;animation:up .18s ease}.msg.user{align-self:flex-end;flex-direction:row-reverse}.msg.ai{align-self:flex-start}.avatar{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:0 0 auto}.msg.user .avatar{background:linear-gradient(135deg,#6366f1,#8b5cf6)}.msg.ai .avatar{background:linear-gradient(135deg,#2563eb,#0ea5e9)}.bubble{padding:14px 16px;border-radius:16px;white-space:pre-wrap;word-break:break-word}.msg.user .bubble{background:var(--user);color:#fff;border-bottom-right-radius:4px}.msg.ai .bubble{background:var(--ai);border:1px solid var(--line);border-bottom-left-radius:4px}.pipeline{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.step{font-size:11px;padding:4px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:#ffffff08}.step.active{color:#8ec5ff;border-color:#3b82f6}.step.done{color:var(--ok);border-color:#10b98155}.meta{margin-top:12px;padding-top:12px;border-top:1px solid #ffffff12}.confidence{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-bottom:8px;flex-wrap:wrap}.track{width:120px;height:6px;border-radius:999px;background:#ffffff0f;overflow:hidden}.fill{height:100%}.tags{display:flex;gap:6px;flex-wrap:wrap}.tag{font-size:11px;padding:3px 8px;border-radius:999px;background:#8b5cf61a;border:1px solid #8b5cf633;color:#c4b5fd}.tag.web-hit{background:#10b98114;border-color:#10b98155;color:#6ee7b7}.action{margin-top:10px;font-size:12px;padding:6px 10px;border-radius:8px;background:#2563eb1a;border:1px solid #2563eb44;color:#93c5fd}.typing{display:flex;gap:4px;padding:6px 0}.typing span{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:b 1.2s infinite}.typing span:nth-child(2){animation-delay:.15s}.typing span:nth-child(3){animation-delay:.3s}.inputbar{padding:14px 18px 18px;border-top:1px solid var(--line);background:#0f172ab3;backdrop-filter:blur(14px)}.row{max-width:820px;margin:0 auto;display:flex;gap:10px}textarea{flex:1;min-height:48px;max-height:120px;resize:none;padding:14px 16px;border-radius:14px;border:1px solid var(--line);background:#0f172a;color:var(--text);font:inherit;outline:none}textarea:focus{border-color:#3b82f6;box-shadow:0 0 0 3px #2563eb33}#send{width:48px;height:48px;border:none;border-radius:14px;background:var(--user);color:#fff;font-size:20px}#send:disabled{opacity:.45;cursor:not-allowed}@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}@keyframes b{0%,60%,100%{transform:none;opacity:.4}30%{transform:translateY(-6px);opacity:1}}@media (max-width:900px){header{align-items:flex-start;flex-wrap:wrap}.tools{margin-left:0;width:100%;justify-content:flex-start}}@media (max-width:640px){#chat{padding:16px}.inputbar{padding:12px 16px 18px}.tools select{min-width:0;width:100%}}
+</style>
+<style>
+.app-shell{display:flex;min-height:100vh}
+.sidebar{width:280px;flex:0 0 280px;border-right:1px solid var(--line);background:#0b1220f2;display:flex;flex-direction:column}
+.sidebar-head{padding:18px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:12px}
+.sidebar-brand{display:flex;align-items:center;gap:12px}
+.sidebar-brand .logo-mini{width:40px;height:40px;border-radius:12px;background:var(--user);display:grid;place-items:center;font-size:20px;box-shadow:0 8px 24px #2563eb33}
+.sidebar-brand strong{display:block;font-size:14px}
+.sidebar-brand span{display:block;color:var(--muted);font-size:12px}
+.new-chat-btn{width:100%;justify-content:center;background:#2563eb;color:#fff;border-color:#2563eb}
+.session-wrap{padding:14px 10px 20px;display:flex;flex-direction:column;gap:10px;min-height:0;flex:1}
+.session-title{padding:0 8px;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+.session-list{display:flex;flex-direction:column;gap:8px;overflow:auto;padding-right:4px}
+.session-item{width:100%;text-align:left;padding:12px 42px 12px 12px;border:1px solid var(--line);border-radius:14px;background:#ffffff06;display:flex;flex-direction:column;gap:6px;position:relative}
+.session-item:hover{border-color:#3b82f655;background:#ffffff0c}
+.session-item.active{border-color:#3b82f6;background:#17255466}
+.session-item strong{font-size:13px;color:var(--text)}
+.session-item span{font-size:12px;color:var(--muted);line-height:1.4}
+.session-item time{font-size:11px;color:var(--muted)}
+.session-delete{position:absolute;top:10px;right:10px;width:24px;height:24px;padding:0;border-radius:999px;border:1px solid #ffffff14;background:#ffffff08;color:var(--muted);display:grid;place-items:center;line-height:1}
+.session-delete:hover{border-color:#ef444455;background:#ef44441a;color:#fecaca}
+.session-empty{padding:12px;color:var(--muted);font-size:13px}
+.main-panel{flex:1;display:flex;flex-direction:column;min-width:0}
+@media (max-width:960px){.app-shell{display:block}.sidebar{width:100%;border-right:none;border-bottom:1px solid var(--line)}.session-wrap{max-height:220px}.main-panel{min-height:calc(100vh - 220px)}}
+</style>
+</head>
+<body>
+<div class="app-shell">
+<aside class="sidebar">
+<div class="sidebar-head">
+<div class="sidebar-brand">
+<div class="logo-mini">⚖️</div>
+<div><strong>VietLegal AI</strong><span>Nhớ lại các hội thoại cũ</span></div>
+</div>
+<button id="newChat" class="new-chat-btn" type="button">+ Cuộc trò chuyện mới</button>
+</div>
+<div class="session-wrap">
+<div class="session-title">Lịch sử hội thoại</div>
+<div id="sessionList" class="session-list"></div>
+</div>
+</aside>
+<div class="main-panel">
+<header>
+<div class="logo">⚖️</div>
+<div class="title"><h1>VietLegal Traffic RAG</h1><p>Tư vấn pháp luật giao thông Việt Nam</p></div>
+<div class="tools">
+<select id="voice" class="voice-select"></select>
+<label class="toggle"><input id="auto" class="auto-speak" type="checkbox" checked><span>Tự đọc</span></label>
+<button id="stopAudio" class="stop-audio-btn" type="button">Dừng đọc</button>
+<div id="ttsStatus" class="pill">Đang tải giọng đọc...</div>
+<div id="appStatus" class="pill ok">Sẵn sàng</div>
+</div>
+</header>
+<main id="chat">
+<section class="welcome" id="welcome">
+<div style="font-size:56px;margin-bottom:16px">🚦</div>
+<h2>Xin chào! Tôi là VietLegal Traffic RAG</h2>
+<p>Hãy hỏi về luật giao thông, mức xử phạt vi phạm, hoặc quy định liên quan. Tôi sẽ trả lời gọn, rõ và có nguồn tham khảo khi có.</p>
+<div class="suggestions">
+<button onclick="askQuestion('Ô tô vượt đèn đỏ phạt bao nhiêu?')">🚗 Ô tô vượt đèn đỏ phạt bao nhiêu?</button>
+<button onclick="askQuestion('Xe máy không đội mũ bảo hiểm bị xử phạt thế nào?')">🏍️ Xe máy không đội mũ bảo hiểm?</button>
+<button onclick="askQuestion('Nồng độ cồn bao nhiêu thì bị phạt?')">🍺 Nồng độ cồn bị phạt?</button>
+<button onclick="askQuestion('Điều kiện cấp giấy phép lái xe ô tô là gì?')">📋 Điều kiện cấp GPLX ô tô?</button>
+</div>
+</section>
+</main>
+<div class="inputbar"><div class="row"><textarea id="input" rows="1" placeholder="Nhập câu hỏi về luật giao thông..." autofocus></textarea><button id="send" type="button">➤</button></div></div>
+</div>
+</div>
+<audio id="audio" preload="none"></audio>
+<script>
+const chat = document.getElementById('chat');
+const input = document.getElementById('input');
+const send = document.getElementById('send');
+const voice = document.getElementById('voice');
+const auto = document.getElementById('auto');
+const stopAudio = document.getElementById('stopAudio');
+const appStatus = document.getElementById('appStatus');
+const ttsStatus = document.getElementById('ttsStatus');
+const audio = document.getElementById('audio');
+const sessionList = document.getElementById('sessionList');
+const newChatBtn = document.getElementById('newChat');
+
+const sessionKey = 'vietlegal-session-id';
+let currentSessionId = localStorage.getItem(sessionKey) || crypto.randomUUID();
+localStorage.setItem(sessionKey, currentSessionId);
+const welcomeHTML = chat.innerHTML;
+
+let busy = false;
+let currentAudioUrl = '';
+let audioCtl = null;
+let currentSpeakBtn = null;
+let currentSessionHasMessages = false;
+
+function setAppStatus(text, tone = 'ok') {
+  appStatus.textContent = text;
+  appStatus.className = 'pill' + (tone ? ' ' + tone : '');
+}
+
+function setTtsStatus(text, tone = '') {
+  ttsStatus.textContent = text;
+  ttsStatus.className = 'pill' + (tone ? ' ' + tone : '');
+}
+
+function esc(value) {
+  const div = document.createElement('div');
+  div.textContent = value || '';
+  return div.innerHTML;
+}
+
+function formatAnswerHtml(text) {
+  const amountPattern = /(\d{1,3}(?:\.\d{3})+(?:\s*(?:đến|-)\s*\d{1,3}(?:\.\d{3})+)?\s*đồng)/g;
+  const lines = String(text || '').split('\n');
+  return lines
+    .map((line) => {
+      const escaped = esc(line).replace(
+        amountPattern,
+        '<strong style="color:#fbbf24;font-weight:700">$1</strong>',
+      );
+      if (!escaped.trim()) {
+        return '<div style="height:8px"></div>';
+      }
+      if (/^Căn cứ:/i.test(line.trim())) {
+        return `<div style="margin-top:8px;color:var(--muted);font-size:13px">${escaped}</div>`;
+      }
+      return `<div>${escaped}</div>`;
+    })
+    .join('');
+}
+
+function renderAnswer(target, text) {
+  target.innerHTML = formatAnswerHtml(text);
+}
+
+function getSpeechText(text) {
+  const filtered = String(text || '')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line && !/^Căn cứ:/i.test(line) && !/^Nguồn tham khảo/i.test(line));
+  return norm(filtered.join(' '));
+}
+
+function scrollBottom() {
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function revokeAudio() {
+  if (currentAudioUrl) {
+    URL.revokeObjectURL(currentAudioUrl);
+    currentAudioUrl = '';
+  }
+}
+
+function stopSpeaking(update = true) {
+  if (audioCtl) {
+    audioCtl.abort();
+    audioCtl = null;
+  }
+  audio.pause();
+  audio.currentTime = 0;
+  revokeAudio();
+  if (currentSpeakBtn) {
+    currentSpeakBtn.disabled = false;
+    currentSpeakBtn.textContent = '🔊 Đọc';
+    currentSpeakBtn = null;
+  }
+  if (update) {
+    setTtsStatus('Đã dừng đọc');
+  }
+}
+
+function norm(text) {
+  return (text || '')
+    .replace(/[*_`#>-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function ensureConversationVisible() {
+  document.getElementById('welcome')?.remove();
+}
+
+function renderWelcome() {
+  chat.innerHTML = welcomeHTML;
+  currentSessionHasMessages = false;
+  scrollBottom();
+}
+
+function shortText(text, maxLength = 52) {
+  const compact = String(text || '').replace(/\s+/g, ' ').trim();
+  if (!compact) {
+    return 'Cuộc trò chuyện mới';
+  }
+  return compact.length > maxLength ? compact.slice(0, maxLength - 1) + '…' : compact;
+}
+
+function formatSessionTime(timestamp) {
+  if (!timestamp) {
+    return '';
+  }
+  try {
+    return new Date(timestamp * 1000).toLocaleString('vi-VN', {
+      day: '2-digit',
+      month: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  } catch {
+    return '';
+  }
+}
+
+function renderSessionList(sessions = []) {
+  const items = [...sessions];
+  if (!items.some((item) => item.session_id === currentSessionId)) {
+    items.unshift({
+      session_id: currentSessionId,
+      title: currentSessionHasMessages ? 'Cuộc trò chuyện hiện tại' : 'Cuộc trò chuyện mới',
+      last_message: currentSessionHasMessages ? 'Đang có nội dung trong phiên này' : 'Bắt đầu một cuộc trò chuyện mới',
+      updated_at: Date.now() / 1000,
+      message_count: currentSessionHasMessages ? 1 : 0,
+      draft: true,
+    });
+  }
+
+  if (!items.length) {
+    sessionList.innerHTML = '<div class="session-empty">Chưa có hội thoại nào.</div>';
+    return;
+  }
+
+  sessionList.innerHTML = '';
+  items.forEach((item) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'session-item' + (item.session_id === currentSessionId ? ' active' : '');
+    button.innerHTML = `
+      <strong>${esc(shortText(item.title))}</strong>
+      <span>${esc(shortText(item.last_message || item.title, 64))}</span>
+      <time>${esc(formatSessionTime(item.updated_at))}</time>
+    `;
+    if (!item.draft) {
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'session-delete';
+      deleteBtn.title = 'Xóa hội thoại';
+      deleteBtn.setAttribute('aria-label', 'Xóa hội thoại');
+      deleteBtn.textContent = '×';
+      deleteBtn.addEventListener('click', async (event) => {
+        event.stopPropagation();
+        await deleteSession(item.session_id);
+      });
+      button.appendChild(deleteBtn);
+    }
+    button.addEventListener('click', () => activateSession(item.session_id));
+    sessionList.appendChild(button);
+  });
+}
+
+async function loadSessions() {
+  try {
+    const response = await fetch('/chat/sessions?limit=24');
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    const data = await response.json();
+    renderSessionList(data.sessions || []);
+  } catch (error) {
+    console.error('Session list failed', error);
+    renderSessionList([]);
+  }
+}
+
+async function activateSession(sessionId) {
+  currentSessionId = sessionId;
+  localStorage.setItem(sessionKey, currentSessionId);
+  stopSpeaking(false);
+  await loadHistory();
+  await loadSessions();
+  input.focus();
+}
+
+function createNewSession() {
+  currentSessionId = crypto.randomUUID();
+  localStorage.setItem(sessionKey, currentSessionId);
+  stopSpeaking(false);
+  renderWelcome();
+  setAppStatus('Sẵn sàng');
+  loadSessions();
+  input.focus();
+}
+
+async function deleteSession(sessionId) {
+  try {
+    const response = await fetch(`/chat/sessions/${encodeURIComponent(sessionId)}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    if (sessionId === currentSessionId) {
+      createNewSession();
+      return;
+    }
+    await loadSessions();
+  } catch (error) {
+    console.error('Delete session failed', error);
+    setAppStatus('Xóa hội thoại thất bại', 'warn');
+  }
+}
+
+function askQuestion(question) {
+  input.value = question;
+  sendMessage();
+}
+
+function addUser(text) {
+  ensureConversationVisible();
+  currentSessionHasMessages = true;
+  const el = document.createElement('div');
+  el.className = 'msg user';
+  el.innerHTML = `<div class="avatar">👤</div><div class="bubble">${esc(text)}</div>`;
+  chat.appendChild(el);
+  scrollBottom();
+}
+
+function makeAi(loading = true) {
+  ensureConversationVisible();
+  const el = document.createElement('div');
+  const typing = loading
+    ? '<div class="typing"><span></span><span></span><span></span></div>'
+    : '';
+  el.className = 'msg ai';
+  el.innerHTML = `
+    <div class="avatar">⚖️</div>
+    <div class="bubble">
+      <div class="pipeline" data-pipeline></div>
+      <div class="ai-text">${typing}</div>
+      <div class="meta" style="display:none"></div>
+    </div>
+  `;
+  chat.appendChild(el);
+  scrollBottom();
+  return el;
+}
+
+function addAssistantHistory(text) {
+  currentSessionHasMessages = true;
+  const el = makeAi(false);
+  renderAnswer(el.querySelector('.ai-text'), text || '');
+  return el;
+}
+
+function updatePipeline(msg, node) {
+  const wrap = msg.querySelector('[data-pipeline]');
+  if (!wrap) {
+    return;
+  }
+  const steps = ['intent_analyzer', 'retriever', 'web_searcher', 'generator'];
+  const labels = {
+    intent_analyzer: '🔍 Phân tích',
+    retriever: '📚 RAG Cục bộ',
+    web_searcher: '🌐 Nguồn chính thống',
+    generator: '✍️ Tạo câu trả lời',
+  };
+  wrap.innerHTML = '';
+  const idx = steps.indexOf(node);
+  steps.forEach((step, i) => {
+    const badge = document.createElement('span');
+    badge.className = 'step';
+    if (i < idx) {
+      badge.classList.add('done');
+    } else if (i === idx) {
+      badge.classList.add('active');
+    }
+    badge.textContent = labels[step] || step;
+    wrap.appendChild(badge);
+  });
+}
+
+function speakButton(answer) {
+  const button = document.createElement('button');
+  button.className = 'action';
+  button.type = 'button';
+  button.textContent = '🔊 Đọc';
+  button.disabled = voice.disabled || !answer;
+  button.onclick = () => speak(answer, button);
+  return button;
+}
+
+function finishAi(msg, answer, sources, confidence, provider, webUsed = false) {
+  const meta = msg.querySelector('.meta');
+  const pipeline = msg.querySelector('[data-pipeline]');
+  let html = '';
+
+  if (confidence !== undefined) {
+    const pct = Math.round((confidence || 0) * 100);
+    let color = 'var(--ok)';
+    if (pct < 50) {
+      color = 'var(--red)';
+    } else if (pct < 70) {
+      color = 'var(--warn)';
+    }
+    html += `
+      <div class="confidence">
+        <span>Độ tin cậy: ${pct}%</span>
+        <div class="track"><div class="fill" style="width:${pct}%;background:${color}"></div></div>
+        ${provider ? `<span class="tag">⚡ ${esc(provider)}</span>` : ''}
+        ${webUsed ? `<span class="tag web-hit">🌐 Đã đối chiếu nguồn web</span>` : ''}
+      </div>
+    `;
+  }
+
+  if (sources?.length) {
+    html += '<div class="tags">';
+    [...new Set(sources)].slice(0, 6).forEach((source) => {
+      html += `<span class="tag">📄 ${esc(source)}</span>`;
+    });
+    html += '</div>';
+  }
+
+  meta.innerHTML = html;
+  const row = document.createElement('div');
+  row.appendChild(speakButton(answer));
+  meta.appendChild(row);
+  meta.style.display = 'block';
+
+  if (pipeline && pipeline.children.length) {
+    msg.querySelectorAll('.step').forEach((step) => {
+      step.className = 'step done';
+    });
+  }
+}
+
+async function loadVoices() {
+  voice.disabled = true;
+  setTtsStatus('Đang tải giọng đọc...');
+  try {
+    const response = await fetch('/tts/voices?locale=vi-VN');
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    const data = await response.json();
+    const voices = data.voices || [];
+    voice.innerHTML = '';
+    voices.forEach((item, index) => {
+      const option = document.createElement('option');
+      option.value = item.short_name;
+      option.textContent = `${item.short_name} (${item.gender || 'unknown'})`;
+      if (index === 0) {
+        option.selected = true;
+      }
+      voice.appendChild(option);
+    });
+    if (!voices.length) {
+      voice.innerHTML = '<option>Không có voice vi-VN</option>';
+      setTtsStatus('Không tìm thấy giọng đọc vi-VN', 'warn');
+      return;
+    }
+    voice.disabled = false;
+    setTtsStatus(`Sẵn sàng đọc: ${voices.length} giọng vi-VN`, 'ok');
+  } catch (error) {
+    console.error(error);
+    voice.innerHTML = '<option>TTS unavailable</option>';
+    setTtsStatus('TTS backend chưa sẵn sàng', 'warn');
+  }
+}
+
+async function loadHistory() {
+  chat.innerHTML = '';
+  currentSessionHasMessages = false;
+  try {
+    const response = await fetch(`/chat/history?session_id=${encodeURIComponent(currentSessionId)}`);
+    if (!response.ok) {
+      renderWelcome();
+      return;
+    }
+    const data = await response.json();
+    const messages = data.messages || data || [];
+    if (!Array.isArray(messages) || !messages.length) {
+      renderWelcome();
+      return;
+    }
+    messages.forEach((message) => {
+      if (message.role === 'user') {
+        addUser(message.content || '');
+      } else if (message.role === 'assistant') {
+        addAssistantHistory(message.content || '');
+      }
+    });
+  } catch (error) {
+    console.error('History hydrate failed', error);
+    renderWelcome();
+  }
+}
+
+async function speak(text, button = null) {
+  const cleaned = getSpeechText(text);
+  if (!cleaned || voice.disabled) {
+    return;
+  }
+  stopSpeaking(false);
+  audioCtl = new AbortController();
+  currentSpeakBtn = button;
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Đang đọc...';
+  }
+  setTtsStatus('Đang tạo audio...');
+  try {
+    const response = await fetch('/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({
+        text: cleaned,
+        voice: voice.value || 'vi-VN-HoaiMyNeural',
+        rate: '+0%',
+      }),
+      signal: audioCtl.signal,
+    });
+    if (!response.ok) {
+      const detail = await response.text();
+      throw new Error(detail || `HTTP ${response.status}`);
+    }
+    const blob = await response.blob();
+    revokeAudio();
+    currentAudioUrl = URL.createObjectURL(blob);
+    audio.src = currentAudioUrl;
+    audio.load();
+    try {
+      await audio.play();
+      setTtsStatus(`Đang đọc bằng ${voice.value}`, 'ok');
+    } catch (playError) {
+      console.error(playError);
+      setTtsStatus('Audio đã sẵn sàng. Bấm play nếu trình duyệt chặn tự phát.', 'warn');
+    }
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      return;
+    }
+    console.error(error);
+    setTtsStatus('Phát audio thất bại', 'warn');
+  } finally {
+    audioCtl = null;
+    if (currentSpeakBtn) {
+      currentSpeakBtn.disabled = false;
+      currentSpeakBtn.textContent = '🔊 Đọc';
+      currentSpeakBtn = null;
+    }
+  }
+}
+
+async function sendMessage() {
+  const text = input.value.trim();
+  if (!text || busy) {
+    return;
+  }
+
+  busy = true;
+  send.disabled = true;
+  setAppStatus('Đang xử lý...');
+  input.value = '';
+  input.style.height = 'auto';
+  stopSpeaking(false);
+
+  addUser(text);
+  const ai = makeAi(true);
+  const aiText = ai.querySelector('.ai-text');
+  let answer = '';
+  let received = false;
+
+  const handleEvent = async (event) => {
+    received = true;
+
+    if (event.type === 'node') {
+      updatePipeline(ai, event.node);
+      if (event.node === 'intent_analyzer') {
+        setAppStatus('Đang phân tích câu hỏi...');
+      } else if (event.node === 'retriever') {
+        setAppStatus('Đang truy xuất tài liệu...');
+      } else if (event.node === 'web_searcher') {
+        setAppStatus('Đang đối chiếu nguồn chính thống...');
+      } else if (event.node === 'generator') {
+        setAppStatus('Đang tạo câu trả lời...');
+      }
+      return;
+    }
+
+    if (event.type === 'text') {
+      if (!answer) {
+        aiText.innerHTML = '';
+      }
+      answer += event.content || '';
+      renderAnswer(aiText, answer);
+      scrollBottom();
+      return;
+    }
+
+    if (event.type === 'replace') {
+      answer = (event.content || answer || '').trim();
+      renderAnswer(aiText, answer);
+      scrollBottom();
+      return;
+    }
+
+    if (event.type === 'done') {
+      const finalAnswer = (event.answer || answer || '').trim();
+      if (finalAnswer) {
+        answer = finalAnswer;
+        renderAnswer(aiText, finalAnswer);
+      }
+      finishAi(ai, finalAnswer, event.sources, event.confidence, event.llm_provider, !!event.web_used);
+      setAppStatus('Sẵn sàng');
+      scrollBottom();
+      await loadSessions();
+      if (auto.checked && finalAnswer && !voice.disabled) {
+        await speak(finalAnswer);
+      }
+    }
+  };
+
+  try {
+    const response = await fetch('/chat/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({ query: text, session_id: currentSessionId }),
+    });
+    if (!response.ok || !response.body) {
+      throw new Error('HTTP ' + response.status);
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) {
+        buffer += decoder.decode();
+        break;
+      }
+      buffer += decoder.decode(value, { stream: true });
+      const events = buffer.split(/\r?\n\r?\n/);
+      buffer = events.pop() || '';
+      for (const rawEvent of events) {
+        const dataLines = rawEvent
+          .split(/\r?\n/)
+          .filter((line) => line.startsWith('data:'))
+          .map((line) => line.slice(5).trim());
+        if (!dataLines.length) {
+          continue;
+        }
+        try {
+          await handleEvent(JSON.parse(dataLines.join('\n')));
+        } catch (parseError) {
+          console.error('Invalid SSE payload', parseError);
+        }
+      }
+    }
+
+    if (buffer.trim()) {
+      const dataLines = buffer
+        .split(/\r?\n/)
+        .filter((line) => line.startsWith('data:'))
+        .map((line) => line.slice(5).trim());
+      if (dataLines.length) {
+        try {
+          await handleEvent(JSON.parse(dataLines.join('\n')));
+        } catch (parseError) {
+          console.error('Invalid trailing SSE payload', parseError);
+        }
+      }
+    }
+
+    if (!answer && !received) {
+      aiText.innerHTML = '<em style="color:var(--muted)">Không nhận được phản hồi.</em>';
+    }
+  } catch (error) {
+    ai.querySelector('.ai-text').innerHTML = `<span style="color:var(--red)">❌ Lỗi: ${esc(error.message)}</span>`;
+    setAppStatus('Lỗi kết nối', 'warn');
+  } finally {
+    busy = false;
+    send.disabled = false;
+    if (appStatus.textContent !== 'Lỗi kết nối') {
+      setAppStatus('Sẵn sàng');
+    }
+    input.focus();
+    scrollBottom();
+  }
+}
+
+input.addEventListener('input', () => {
+  input.style.height = 'auto';
+  input.style.height = `${Math.min(input.scrollHeight, 120)}px`;
+});
+
+input.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter' && !event.shiftKey) {
+    event.preventDefault();
+    sendMessage();
+  }
+});
+
+send.addEventListener('click', sendMessage);
+newChatBtn.addEventListener('click', createNewSession);
+stopAudio.addEventListener('click', () => stopSpeaking(true));
+audio.addEventListener('ended', () => setTtsStatus('Đọc xong', 'ok'));
+
+async function init() {
+  await loadVoices();
+  await loadSessions();
+  await loadHistory();
+  input.focus();
+}
+
+init();
+</script>
+</body>
+</html>
+
+
+
