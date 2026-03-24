@@ -152,6 +152,7 @@ def test_gitignore_blocks_internal_and_local_only_artifacts():
         "docs/plans/",
         "docs/cv-bullets.md",
         "docs/github-checklist.md",
+        "docs/private/",
         "docs/benchmarks/smoke_results.json",
         "docs/benchmarks/smoke_summary.md",
         "uvicorn_run.err",

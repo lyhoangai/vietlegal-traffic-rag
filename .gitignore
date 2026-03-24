@@ -19,6 +19,7 @@ uvicorn_run.err
 docs/plans/
 docs/cv-bullets.md
 docs/github-checklist.md
+docs/private/
 docs/benchmarks/smoke_results.json
 docs/benchmarks/smoke_summary.md
 app.py
