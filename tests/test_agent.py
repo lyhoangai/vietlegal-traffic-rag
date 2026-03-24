@@ -155,6 +155,26 @@ async def test_intent_analyzer_current_query_can_override_previous_violation():
 
 
 @pytest.mark.asyncio
+async def test_intent_analyzer_new_alcohol_query_does_not_inherit_red_light_violation_from_history():
+    from src.agent.nodes import intent_analyzer
+
+    with patch(
+        "src.agent.nodes.invoke_with_fallback",
+        new=AsyncMock(return_value="not-json"),
+    ):
+        state = _make_state("xe tai uong ruou co bi phat khong")
+        state["messages"] = [
+            {"role": "user", "content": "o to vuot den do phat bao nhieu"},
+            {"role": "assistant", "content": "Muc phat tu 18.000.000 dong den 20.000.000 dong."},
+        ]
+        result = await intent_analyzer(state)
+
+    assert result["intent"] == "penalty"
+    assert result["entities"]["vehicle_type"] == "xe tải"
+    assert result["entities"]["violation_type"] == "nồng độ cồn"
+
+
+@pytest.mark.asyncio
 async def test_intent_analyzer_falls_back_to_penalty_intent_from_follow_up_history_when_llm_output_is_invalid():
     from src.agent.nodes import intent_analyzer
 
@@ -459,6 +479,47 @@ async def test_generator_penalty_red_light_mentions_web_confirmation_when_reques
 
     assert "18.000.000 đồng đến 20.000.000 đồng" in result["answer"]
     assert "Đã đối chiếu nguồn web chính thống" in result["answer"]
+
+
+@pytest.mark.asyncio
+async def test_generator_penalty_new_alcohol_query_does_not_return_red_light_answer_from_history():
+    from src.agent.nodes import generator
+
+    state = _make_state("xe tai uong ruou co bi phat khong")
+    state["intent"] = "penalty"
+    state["messages"] = [
+        {"role": "user", "content": "o to vuot den do phat bao nhieu"},
+        {"role": "assistant", "content": "Muc phat tu 18.000.000 dong den 20.000.000 dong."},
+    ]
+    state["entities"] = {"vehicle_type": "xe tải", "violation_type": None}
+    state["sources"] = [
+        "Web · vbpl.vn · Nghị định 168/2024/NĐ-CP - Bộ Công An",
+        "nghi_dinh_168_2024 trang 16",
+    ]
+    state["reranked_docs"] = [
+        (
+            "Điều 6. Xử phạt người điều khiển xe ô tô ... "
+            "9. Phạt tiền từ 18.000.000 đồng đến 20.000.000 đồng đối với hành vi không chấp hành hiệu lệnh đèn tín hiệu giao thông."
+        ),
+        (
+            "Điều 8. Xe tải chỉ cần có nồng độ cồn khi điều khiển xe là đã bị xử phạt. "
+            "Mức 1: phạt từ 6.000.000 đồng đến 8.000.000 đồng nếu chưa vượt quá 50 mg/100 ml máu "
+            "hoặc chưa vượt quá 0,25 mg/l khí thở."
+        ),
+    ]
+    state["web_docs"] = [
+        "[Nguồn web chính thống]\nTiêu đề: Nghị định 168/2024/NĐ-CP - Bộ Công An\nURL: https://vbpl.vn\nTóm tắt: ... nồng độ cồn ..."
+    ]
+
+    with patch(
+        "src.agent.nodes.invoke_with_fallback",
+        new=AsyncMock(side_effect=AssertionError("should not call llm")),
+    ):
+        result = await generator(state)
+
+    assert result["confidence"] >= 0.9
+    assert "nồng độ cồn" in result["answer"].lower()
+    assert "vượt đèn đỏ" not in result["answer"].lower()
 
 
 @pytest.mark.asyncio

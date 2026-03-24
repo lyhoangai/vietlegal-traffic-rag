@@ -103,6 +103,44 @@ def _normalize_text(text: str) -> str:
     return text
 
 
+def _mentions_red_light(normalized_text: str) -> bool:
+    return "den do" in normalized_text or "den tin hieu" in normalized_text
+
+
+def _mentions_alcohol(normalized_text: str) -> bool:
+    alcohol_markers = (
+        "nong do con",
+        "ruou bia",
+        "uong ruou",
+        "uong bia",
+        "say ruou",
+        "say bia",
+    )
+    return any(marker in normalized_text for marker in alcohol_markers)
+
+
+def _violation_topic(normalized_text: str) -> str | None:
+    if not normalized_text:
+        return None
+    if _mentions_red_light(normalized_text):
+        return "red_light"
+    if _mentions_alcohol(normalized_text):
+        return "alcohol"
+    if "sai lan" in normalized_text:
+        return "wrong_lane"
+    if "mu bao hiem" in normalized_text:
+        return "helmet"
+    if "nguoc chieu" in normalized_text:
+        return "wrong_way"
+    if "dien thoai" in normalized_text:
+        return "phone"
+    if "toc do" in normalized_text:
+        return "speed"
+    if "khoang cach an toan" in normalized_text:
+        return "distance"
+    return None
+
+
 def _recent_messages(messages: list, max_messages: int = 6) -> list:
     if not messages:
         return []
@@ -141,21 +179,22 @@ def _infer_entities_from_query(query: str, entities: dict) -> dict:
             inferred["vehicle_type"] = "\u00f4 t\u00f4"
 
     if not inferred.get("violation_type"):
-        if "den do" in normalized:
+        topic = _violation_topic(normalized)
+        if topic == "red_light":
             inferred["violation_type"] = "v\u01b0\u1ee3t \u0111\u00e8n \u0111\u1ecf"
-        elif "nong do con" in normalized or "ruou bia" in normalized:
+        elif topic == "alcohol":
             inferred["violation_type"] = "n\u1ed3ng \u0111\u1ed9 c\u1ed3n"
-        elif "sai lan" in normalized:
+        elif topic == "wrong_lane":
             inferred["violation_type"] = "\u0111i sai l\u00e0n"
-        elif "mu bao hiem" in normalized:
+        elif topic == "helmet":
             inferred["violation_type"] = "kh\u00f4ng \u0111\u1ed9i m\u0169 b\u1ea3o hi\u1ec3m"
-        elif "nguoc chieu" in normalized:
+        elif topic == "wrong_way":
             inferred["violation_type"] = "\u0111i ng\u01b0\u1ee3c chi\u1ec1u"
-        elif "dien thoai" in normalized:
+        elif topic == "phone":
             inferred["violation_type"] = "d\u00f9ng \u0111i\u1ec7n tho\u1ea1i khi l\u00e1i xe"
-        elif "toc do" in normalized:
+        elif topic == "speed":
             inferred["violation_type"] = "t\u1ed1c \u0111\u1ed9"
-        elif "khoang cach an toan" in normalized:
+        elif topic == "distance":
             inferred["violation_type"] = "kho\u1ea3ng c\u00e1ch an to\u00e0n"
 
     return inferred
@@ -185,6 +224,8 @@ def _infer_intent_from_context(query: str, history_text: str, entities: dict) ->
         "den tin hieu",
         "nong do con",
         "ruou bia",
+        "uong ruou",
+        "uong bia",
         "mu bao hiem",
         "sai lan",
         "nguoc chieu",
@@ -391,6 +432,9 @@ def _build_red_light_penalty_answer(
     violation_type = _normalize_text(entities.get("violation_type", ""))
     normalized_query = _normalize_text(state.get("user_query", ""))
     normalized_history = _normalize_text(_history_text(state.get("messages", [])))
+    violation_topic = _violation_topic(violation_type)
+    query_topic = _violation_topic(normalized_query)
+    history_topic = _violation_topic(normalized_history)
     vehicle_norm = ""
     if "xe may" in normalized_query:
         vehicle_norm = "xe may"
@@ -400,14 +444,11 @@ def _build_red_light_penalty_answer(
         vehicle_norm = "o to"
     else:
         vehicle_norm = _normalize_text(entities.get("vehicle_type", ""))
-    if (
-        "den do" not in violation_type
-        and "den tin hieu" not in violation_type
-        and "den do" not in normalized_query
-        and "den tin hieu" not in normalized_query
-        and "den do" not in normalized_history
-        and "den tin hieu" not in normalized_history
-    ):
+    if violation_topic == "red_light" or query_topic == "red_light":
+        should_answer = True
+    else:
+        should_answer = query_topic is None and history_topic == "red_light"
+    if not should_answer:
         return None, None
 
     corpus = "\n".join(docs)
@@ -488,13 +529,14 @@ def _build_alcohol_penalty_answer(
     violation_type = _normalize_text(entities.get("violation_type", ""))
     normalized_query = _normalize_text(state.get("user_query", ""))
     normalized_history = _normalize_text(_history_text(state.get("messages", [])))
-    if (
-        "nong do con" not in violation_type
-        and "nong do con" not in normalized_query
-        and "nong do con" not in normalized_history
-        and "ruou bia" not in normalized_query
-        and "ruou bia" not in normalized_history
-    ):
+    violation_topic = _violation_topic(violation_type)
+    query_topic = _violation_topic(normalized_query)
+    history_topic = _violation_topic(normalized_history)
+    if violation_topic == "alcohol" or query_topic == "alcohol":
+        should_answer = True
+    else:
+        should_answer = query_topic is None and history_topic == "alcohol"
+    if not should_answer:
         return None, None
 
     vehicle_norm = _normalize_text(entities.get("vehicle_type", ""))

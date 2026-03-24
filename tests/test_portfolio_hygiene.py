@@ -76,6 +76,7 @@ def test_static_ui_keeps_public_branding_and_no_ascii_fallback_title():
     html = _read_utf8("src/api/static/index.html")
 
     assert "VietLegal Traffic RAG" in html
+    assert "VietLegal AI</strong>" not in html
     assert "Tu van Luat Giao thong" not in html
 
 
