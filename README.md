@@ -11,6 +11,7 @@ Scoped Vietnamese traffic-law RAG for the `LLM product / RAG engineer` lane. The
 - reproducible benchmark artifacts and a public eval package
 - local web demo with SSE streaming, session history, and Vietnamese TTS
 - Docker + Render-ready deployment files for portfolio demos
+- Hugging Face Spaces path for a free public demo
 
 ## Evidence
 
@@ -147,6 +148,19 @@ Render notes:
 - the persistent disk is mounted at `/app/storage`, which keeps Chroma and chat-memory files across restarts
 - the health check uses `GET /health`
 - first deploy will be slower because the app may download the local embedding model and build the vector store
+
+## Free Deploy on Hugging Face Spaces
+
+If you want a free public demo instead of a paid Render service with persistent disk, use Hugging Face Spaces with the Docker SDK.
+
+- Space README template: [`README.hf-space.md`](README.hf-space.md)
+- Step-by-step guide: [`docs/deploy-huggingface-spaces.md`](docs/deploy-huggingface-spaces.md)
+
+Trade-offs:
+
+- free Spaces can sleep after inactivity
+- storage is not persistent on the free tier, so chat memory and rebuilt Chroma state can reset
+- for a portfolio demo, this is usually acceptable
 
 ## API / Endpoints
 
