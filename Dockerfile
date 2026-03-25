@@ -4,7 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     HOST=0.0.0.0 \
-    PORT=8000
+    PORT=7860
 
 WORKDIR /app
 
@@ -15,6 +15,6 @@ COPY . .
 
 RUN mkdir -p /app/storage
 
-EXPOSE 8000
+EXPOSE 7860
 
 CMD ["python", "-m", "src.deploy.bootstrap"]
