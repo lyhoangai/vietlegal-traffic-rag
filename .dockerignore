@@ -1,13 +1,8 @@
 .git
 .github
-.gitnexus
 .pytest_cache
 .venv
 .vscode
-.agent
-.agents
-.claude
-.specify
 venv
 __pycache__
 *.pyc
@@ -21,6 +16,4 @@ uvicorn_run.err
 uvicorn_run.log
 uvicorn_smoke.log
 external
-docs/superpowers
-specs
 tests
