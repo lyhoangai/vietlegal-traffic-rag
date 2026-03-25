@@ -1,6 +1,22 @@
 # VietLegal Traffic RAG Architecture
 
-![Architecture](assets/architecture.svg)
+```mermaid
+flowchart LR
+    A["User Question"] --> B["Web UI"]
+    B --> C["FastAPI API"]
+    C --> D["Session Memory<br/>SQLite reload + save"]
+    C --> E["RAG Graph"]
+    E --> F["Intent Analysis + Routing"]
+    F --> G["Retrieval + Reranking"]
+    G --> H["Active 2025 Corpus<br/>Manifest + Chroma"]
+    F --> I["Optional Official-Source<br/>Web Verification"]
+    G --> J["Answer with Citations"]
+    I --> J
+    J --> K["SSE Response"]
+    K --> B
+    B --> L["Vietnamese TTS"]
+    C --> M["Benchmark & Eval Artifacts"]
+```
 
 ## Goal
 
@@ -16,9 +32,10 @@ The architecture favors explainability, conservative fallback behavior, short-te
 
 1. The user sends a question to `/chat` or `/chat/stream`.
 2. The API reloads recent turns from SQLite using `session_id`.
-3. The graph runs `intent_analyzer`, `query_router`, `retriever`, `reranker`, `web_searcher`, and `generator`.
-4. The app stores the assistant turn and exposes it again through history endpoints.
-5. Benchmarks exercise the same pipeline in different modes.
+3. The graph runs `intent_analyzer`, `query_router`, `retriever`, `reranker`, optional `web_searcher`, and `generator`.
+4. The app stores the assistant turn, exposes it again through history endpoints, and can stream the answer back over SSE.
+5. The web UI can request Vietnamese TTS for local demo playback.
+6. Benchmarks exercise the same retrieval and generation pipeline in different modes.
 
 ## Main Layers
 

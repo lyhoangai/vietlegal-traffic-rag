@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: vietlegal-traffic-rag
+    runtime: docker
+    plan: starter
+    autoDeploy: true
+    healthCheckPath: /health
+    disk:
+      name: vietlegal-storage
+      mountPath: /app/storage
+      sizeGB: 1
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: 10000
+      - key: LLM_PROVIDER
+        value: groq
+      - key: EMBEDDING_PROVIDER
+        value: local
+      - key: LOCAL_EMBEDDING_MODEL
+        value: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+      - key: CHROMA_DB_PATH
+        value: /app/storage/chroma_db
+      - key: MEMORY_DB_PATH
+        value: /app/storage/chat_memory.db
+      - key: ENABLE_RERANKER
+        value: "true"
+      - key: ENABLE_WEB_FALLBACK
+        value: "true"
+      - key: GROQ_API_KEY
+        sync: false
+      - key: SERPER_API_KEY
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false

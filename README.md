@@ -10,6 +10,7 @@ Scoped Vietnamese traffic-law RAG for the `LLM product / RAG engineer` lane. The
 - active 2025 corpus managed through `data/manifest.json`
 - reproducible benchmark artifacts and a public eval package
 - local web demo with SSE streaming, session history, and Vietnamese TTS
+- Docker + Render-ready deployment files for portfolio demos
 
 ## Evidence
 
@@ -34,9 +35,22 @@ Local benchmark run on `2026-03-23` using the public eval package at [`datasets/
 
 ## Architecture
 
-![Architecture](docs/assets/architecture.svg)
+```mermaid
+flowchart LR
+    A["User Question"] --> B["Web UI"]
+    B --> C["FastAPI API"]
+    C --> D["Session Memory<br/>SQLite reload + save"]
+    C --> E["RAG Graph"]
+    E --> F["Active 2025 Corpus<br/>Manifest + Chroma"]
+    E --> G["Optional Official-Source<br/>Web Verification"]
+    E --> H["Answer with Citations"]
+    H --> I["SSE Streaming Response"]
+    I --> B
+    B --> J["Vietnamese TTS"]
+    C --> K["Benchmark & Eval Artifacts"]
+```
 
-The public architecture view is intentionally compact. It shows only the real layers in this repo: web UI, FastAPI API, session memory, Chroma-backed retrieval, official-source web fallback, and benchmark artifacts.
+This is the real demo pipeline in one view: the browser sends a question to FastAPI, the app reloads short-term memory, retrieves from the active traffic-law corpus, optionally verifies official sources, then streams back an answer with citations and optional Vietnamese TTS.
 
 - Longer walkthrough: [`docs/architecture.md`](docs/architecture.md)
 - Scope statement: this is a traffic-law RAG demo, not a general legal chatbot platform
@@ -94,6 +108,45 @@ Open the web UI:
 ```text
 http://127.0.0.1:8000/
 ```
+
+## Run with Docker
+
+Build and run the app in a container:
+
+```powershell
+docker compose up --build
+```
+
+The container uses [`src/deploy/bootstrap.py`](src/deploy/bootstrap.py) as its startup command. On the first boot it builds Chroma into `/app/storage/chroma_db`, then starts `uvicorn`. Later restarts reuse that storage instead of rebuilding from scratch.
+
+What persists in Docker:
+
+- Chroma collections via the named volume `vietlegal_storage`
+- chat session memory via `/app/storage/chat_memory.db`
+
+What you still need locally:
+
+- a filled `.env` with at least `GROQ_API_KEY`
+- the 2025 traffic-law PDFs listed in [`data/manifest.json`](data/manifest.json)
+
+## Deploy on Render
+
+This repo now includes a Render Blueprint at [`render.yaml`](render.yaml).
+
+Recommended flow:
+
+1. Push the repo to GitHub.
+2. In Render, create a new Blueprint from the repo.
+3. Keep the bundled Docker runtime and attach the persistent disk defined in `render.yaml`.
+4. Set secret env vars like `GROQ_API_KEY`, plus `SERPER_API_KEY` / `TAVILY_API_KEY` if you want stronger official-source fallback.
+5. Deploy and wait for the first boot to finish building Chroma before testing `/chat`.
+
+Render notes:
+
+- the service uses `Docker` instead of a native Python runtime for reproducible builds
+- the persistent disk is mounted at `/app/storage`, which keeps Chroma and chat-memory files across restarts
+- the health check uses `GET /health`
+- first deploy will be slower because the app may download the local embedding model and build the vector store
 
 ## API / Endpoints
 

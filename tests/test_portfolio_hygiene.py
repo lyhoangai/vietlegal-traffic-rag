@@ -96,7 +96,7 @@ def test_readme_has_compact_public_sections_and_no_internal_links():
 
     assert "docs/assets/chat-ui.png" in readme
     assert "docs/assets/history-sidebar.png" in readme
-    assert "docs/assets/architecture.svg" in readme
+    assert "```mermaid" in readme
     assert "docs/assets/ci-badge.svg" in readme
     assert "docs/benchmarks/latest_summary.md" in readme
     assert "docs/benchmarks/latest_results.json" in readme
@@ -165,7 +165,6 @@ def test_repo_has_required_public_assets_and_dataset_package():
     required_paths = [
         "docs/assets/chat-ui.png",
         "docs/assets/history-sidebar.png",
-        "docs/assets/architecture.svg",
         "docs/assets/ci-badge.svg",
         "datasets/vietlegal-traffic-eval-v1/README.md",
         "datasets/vietlegal-traffic-eval-v1/data.jsonl",
