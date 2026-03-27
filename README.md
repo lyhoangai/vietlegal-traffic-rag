@@ -4,6 +4,10 @@
 
 Scoped Vietnamese traffic-law RAG for the `LLM product / RAG engineer` lane. The app answers a narrow set of traffic-law questions, keeps short-term session memory, and can verify official sources when the user asks for a web-confirmed answer.
 
+## Live Demo
+
+- Public demo: [https://huggingface.co/spaces/lyhoang0104ls/vietlegal-traffic-rag](https://huggingface.co/spaces/lyhoang0104ls/vietlegal-traffic-rag)
+
 ## Overview
 
 - narrow scope instead of broad legal-AI claims

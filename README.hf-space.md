@@ -1,13 +1,13 @@
 ---
 title: VietLegal Traffic RAG
 emoji: "🚦"
-colorFrom: amber
+colorFrom: yellow
 colorTo: blue
 sdk: docker
 app_port: 7860
 pinned: false
 license: mit
-short_description: Scoped Vietnamese traffic-law RAG with citations, session memory, and optional official-source verification.
+short_description: Traffic-law RAG with citations, memory, and web checks.
 ---
 
 # VietLegal Traffic RAG
