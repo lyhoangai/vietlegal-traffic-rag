@@ -57,8 +57,16 @@ The architecture favors explainability, conservative fallback behavior, short-te
 
 - [`../src/agent/graph.py`](../src/agent/graph.py)
 - [`../src/agent/nodes.py`](../src/agent/nodes.py)
+- [`../src/agent/intent.py`](../src/agent/intent.py)
+- [`../src/agent/retrieval.py`](../src/agent/retrieval.py)
+- [`../src/agent/answers.py`](../src/agent/answers.py)
+- [`../src/agent/text_utils.py`](../src/agent/text_utils.py)
+- [`../src/agent/rule_based.py`](../src/agent/rule_based.py)
+- [`../src/agent/chat_flow.py`](../src/agent/chat_flow.py)
 - [`../src/agent/state.py`](../src/agent/state.py)
-- Handles intent analysis, routing, retrieval, reranking, web fallback, and answer generation
+- `nodes.py` now acts as a compatibility facade, while the split modules hold intent parsing, retrieval, rule-based guardrails, and generation logic
+- `chat_flow.py` keeps `/chat` and `/chat/stream` aligned so the API does not duplicate the pipeline manually
+- `text_utils.py` and `rule_based.py` hold the lightweight heuristics and compact high-confidence answers used by the public benchmark
 
 ### Session Memory
 
@@ -76,9 +84,9 @@ The architecture favors explainability, conservative fallback behavior, short-te
 ### Benchmark and Public Dataset
 
 - [`../src/eval/run_benchmark.py`](../src/eval/run_benchmark.py)
-- [`../datasets/vietlegal-traffic-eval-v1/README.md`](../datasets/vietlegal-traffic-eval-v1/README.md)
+- [`../datasets/vietlegal-traffic-eval-v2/README.md`](../datasets/vietlegal-traffic-eval-v2/README.md)
 - [`../docs/benchmarks/latest_summary.md`](../docs/benchmarks/latest_summary.md)
-- Produces recruiter-facing proof without changing runtime APIs
+- Produces recruiter-facing proof with the 300-case v2 package without changing runtime APIs
 
 ## Design Choices
 
@@ -89,4 +97,4 @@ The architecture favors explainability, conservative fallback behavior, short-te
 
 ## Interview Summary
 
-> I built a scoped Vietnamese traffic-law RAG demo with session memory, manifest-driven retrieval, official-source verification, and reproducible benchmark artifacts.
+> I built a scoped Vietnamese traffic-law RAG demo with session memory, split agent modules, official-source verification, and a reproducible 300-case benchmark package.

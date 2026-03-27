@@ -100,8 +100,7 @@ def test_readme_has_compact_public_sections_and_no_internal_links():
     assert "docs/assets/ci-badge.svg" in readme
     assert "docs/benchmarks/latest_summary.md" in readme
     assert "docs/benchmarks/latest_results.json" in readme
-    assert "datasets/vietlegal-traffic-eval-v1/README.md" in readme
-    assert "https://huggingface.co/datasets/lyhoang0104ls/vietlegal-traffic-eval-v1" in readme
+    assert "datasets/vietlegal-traffic-eval-v2/README.md" in readme
     assert "docs/cv-bullets.md" not in readme
     assert "docs/github-checklist.md" not in readme
     assert "AGENTS.md" not in readme
@@ -123,7 +122,7 @@ def test_architecture_doc_uses_repo_relative_links_only():
     assert "../src/api/main.py" in architecture
     assert "../src/memory/store.py" in architecture
     assert "../data/manifest.json" in architecture
-    assert "../datasets/vietlegal-traffic-eval-v1/README.md" in architecture
+    assert "../datasets/vietlegal-traffic-eval-v2/README.md" in architecture
 
 
 def test_internal_only_files_are_not_tracked_in_public_repo():
@@ -166,8 +165,8 @@ def test_repo_has_required_public_assets_and_dataset_package():
         "docs/assets/chat-ui.png",
         "docs/assets/history-sidebar.png",
         "docs/assets/ci-badge.svg",
-        "datasets/vietlegal-traffic-eval-v1/README.md",
-        "datasets/vietlegal-traffic-eval-v1/data.jsonl",
+        "datasets/vietlegal-traffic-eval-v2/README.md",
+        "datasets/vietlegal-traffic-eval-v2/data.jsonl",
         "docs/benchmarks/latest_summary.md",
         "docs/benchmarks/latest_results.json",
         "docs/demo-script.md",

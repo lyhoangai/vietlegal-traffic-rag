@@ -21,17 +21,15 @@ Scoped Vietnamese traffic-law RAG for the `LLM product / RAG engineer` lane. The
 
 ### Benchmark Highlights
 
-Local benchmark run on `2026-03-23` using the public eval package at [`datasets/vietlegal-traffic-eval-v1/README.md`](datasets/vietlegal-traffic-eval-v1/README.md):
+Local benchmark run on `2026-03-27` using the repo-local eval package at [`datasets/vietlegal-traffic-eval-v2/README.md`](datasets/vietlegal-traffic-eval-v2/README.md):
 
-| Mode | Cases | Pass Rate | Citation Rate | Avg Confidence |
-| --- | ---: | ---: | ---: | ---: |
-| `full` | 33 | 100.0% | 100.0% | 0.741 |
-| `no_reranker` | 33 | 100.0% | 100.0% | 0.741 |
-| `no_web_fallback` | 33 | 97.0% | 100.0% | 0.735 |
+| Mode | Cases | Pass Rate | Errors | Citation Rate | Avg Confidence |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `full` | 300 | 98.3% | 0 | 100.0% | 0.823 |
 
 - Full artifacts: [`docs/benchmarks/latest_summary.md`](docs/benchmarks/latest_summary.md) and [`docs/benchmarks/latest_results.json`](docs/benchmarks/latest_results.json)
-- Dataset package: [`datasets/vietlegal-traffic-eval-v1/README.md`](datasets/vietlegal-traffic-eval-v1/README.md)
-- Published dataset: <https://huggingface.co/datasets/lyhoang0104ls/vietlegal-traffic-eval-v1>
+- Dataset package: [`datasets/vietlegal-traffic-eval-v2/README.md`](datasets/vietlegal-traffic-eval-v2/README.md)
+- Dataset publish notes: [`datasets/vietlegal-traffic-eval-v2/README.md`](datasets/vietlegal-traffic-eval-v2/README.md)
 - Demo flow: [`docs/demo-script.md`](docs/demo-script.md)
 
 ## Architecture
