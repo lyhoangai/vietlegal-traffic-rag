@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-DATASET_DIR = ROOT / "datasets" / "vietlegal-traffic-eval-v1"
+DATASET_DIR = ROOT / "datasets" / "vietlegal-traffic-eval-v2"
 DATASET_PATH = DATASET_DIR / "data.jsonl"
 DATASET_CARD_PATH = DATASET_DIR / "README.md"
 
@@ -51,8 +51,8 @@ def validate_benchmark_dataset(entries: list[dict], *, require_publish_ready: bo
     seen_ids = set()
     seen_categories = set()
 
-    if require_publish_ready and not 30 <= len(entries) <= 50:
-        errors.append("publish-ready dataset must contain 30-50 rows")
+    if require_publish_ready and not 30 <= len(entries) <= 300:
+        errors.append("publish-ready dataset must contain 30-300 rows")
 
     for index, entry in enumerate(entries, start=1):
         missing = REQUIRED_FIELDS.difference(entry)

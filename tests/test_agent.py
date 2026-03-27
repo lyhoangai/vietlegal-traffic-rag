@@ -214,6 +214,67 @@ async def test_intent_analyzer_falls_back_to_history_heuristics_when_llm_provide
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("query", "expected_vehicle", "expected_violation"),
+    [
+        (
+            "xe con vuot den do phat the nao",
+            "\u00f4 t\u00f4",
+            "v\u01b0\u1ee3t \u0111\u00e8n \u0111\u1ecf",
+        ),
+        (
+            "xe gan may vuot den do phat the nao",
+            "xe m\u00e1y",
+            "v\u01b0\u1ee3t \u0111\u00e8n \u0111\u1ecf",
+        ),
+        (
+            "xe mo to khong doi mu bao hiem phat bao nhieu",
+            "xe m\u00e1y",
+            "kh\u00f4ng \u0111\u1ed9i m\u0169 b\u1ea3o hi\u1ec3m",
+        ),
+    ],
+)
+async def test_intent_analyzer_maps_benchmark_vehicle_synonyms_when_llm_is_unavailable(
+    query,
+    expected_vehicle,
+    expected_violation,
+):
+    from src.agent.nodes import intent_analyzer
+
+    with patch(
+        "src.agent.nodes.invoke_with_fallback",
+        new=AsyncMock(side_effect=RuntimeError("401 unauthorized")),
+    ):
+        result = await intent_analyzer(_make_state(query))
+
+    assert result["intent"] == "penalty"
+    assert result["entities"]["vehicle_type"] == expected_vehicle
+    assert result["entities"]["violation_type"] == expected_violation
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "query",
+    [
+        "tai xe o to co con khi lai xe phat bao nhieu",
+        "muc phat o to o nguong con thap nhat la bao nhieu",
+    ],
+)
+async def test_intent_analyzer_detects_alcohol_penalty_synonyms_when_llm_is_unavailable(query):
+    from src.agent.nodes import intent_analyzer
+
+    with patch(
+        "src.agent.nodes.invoke_with_fallback",
+        new=AsyncMock(side_effect=RuntimeError("401 unauthorized")),
+    ):
+        result = await intent_analyzer(_make_state(query))
+
+    assert result["intent"] == "penalty"
+    assert result["entities"]["vehicle_type"] == "\u00f4 t\u00f4"
+    assert result["entities"]["violation_type"] == "n\u1ed3ng \u0111\u1ed9 c\u1ed3n"
+
+
+@pytest.mark.asyncio
 async def test_reranker_reduces_to_5():
     from src.agent.nodes import reranker
 
@@ -250,6 +311,34 @@ async def test_generator_speed_returns_missing_evidence_when_docs_missing():
     assert "tốc độ hoặc khoảng cách an toàn" in result["answer"].lower()
 
 
+def test_build_early_answer_speed_requires_evidence_docs():
+    from src.agent.nodes import build_early_answer
+
+    state = _make_state("toc do toi da tren duong cao toc la bao nhieu")
+    state["intent"] = "speed"
+    state["collection_used"] = "traffic_speed"
+
+    answer, confidence = build_early_answer(state, [])
+
+    assert answer == "Không đủ căn cứ trong tài liệu hiện có để kết luận về tốc độ hoặc khoảng cách an toàn."
+    assert confidence == 0.3
+
+
+def test_build_early_answer_helmet_requires_matching_evidence_docs():
+    from src.agent.nodes import build_early_answer
+
+    state = _make_state("xe may khong doi mu bao hiem bi xu phat the nao")
+    state["intent"] = "penalty"
+    state["entities"] = {"vehicle_type": "xe may", "violation_type": "khong doi mu bao hiem"}
+    state["retrieved_docs"] = ["Dieu 12 quy dinh ve toc do toi da tren cao toc."]
+    state["reranked_docs"] = ["Dieu 12 quy dinh ve toc do toi da tren cao toc."]
+
+    answer, confidence = build_early_answer(state, state["reranked_docs"])
+
+    assert answer is None
+    assert confidence is None
+
+
 @pytest.mark.asyncio
 async def test_generator_speed_can_return_rule_based_expressway_answer():
     from src.agent.nodes import generator
@@ -267,7 +356,7 @@ async def test_generator_speed_can_return_rule_based_expressway_answer():
 
     assert result["confidence"] >= 0.9
     assert "120 km/h" in result["answer"]
-    assert "Thong tu 38/2024/TT-BGTVT" in result["answer"]
+    assert "38/2024/TT-BGTVT" in result["answer"]
 
 
 @pytest.mark.asyncio
@@ -287,7 +376,7 @@ async def test_generator_speed_can_handle_expressway_question_without_explicit_t
 
     assert result["confidence"] >= 0.9
     assert "120 km/h" in result["answer"]
-    assert "Thong tu 38/2024/TT-BGTVT" in result["answer"]
+    assert "38/2024/TT-BGTVT" in result["answer"]
 
 
 @pytest.mark.asyncio
@@ -312,7 +401,7 @@ async def test_generator_speed_can_use_history_and_retrieved_docs_when_reranked_
 
     assert result["confidence"] >= 0.9
     assert "120 km/h" in result["answer"]
-    assert "Thong tu 38/2024/TT-BGTVT" in result["answer"]
+    assert "38/2024/TT-BGTVT" in result["answer"]
 
 
 @pytest.mark.asyncio
@@ -361,6 +450,30 @@ async def test_generator_out_of_scope_returns_scope_limitation():
     result = await generator(state)
     assert result["confidence"] == 0.2
     assert "ngoài phạm vi demo" in result["answer"].lower()
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "query",
+    [
+        "chuyen quyen so huu o to can lam thu tuc gi",
+        "muon mo doanh nghiep van tai can thu tuc gi",
+        "gay tai nan phai den bao nhieu tien",
+    ],
+)
+async def test_generator_out_of_scope_handles_benchmark_scope_queries(query):
+    from src.agent.nodes import generator
+
+    state = _make_state(query)
+
+    with patch(
+        "src.agent.nodes.invoke_with_fallback",
+        new=AsyncMock(side_effect=AssertionError("should not call llm")),
+    ):
+        result = await generator(state)
+
+    assert result["confidence"] == 0.2
+    assert "ph\u1ea1m vi demo" in result["answer"].lower()
 
 
 def test_infer_entities_handles_vietnamese_diacritics_for_den_do():

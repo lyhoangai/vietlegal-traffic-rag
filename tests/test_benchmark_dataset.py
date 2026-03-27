@@ -17,7 +17,7 @@ from src.eval.benchmark_dataset import (
 def test_benchmark_dataset_has_publish_ready_schema():
     entries = load_benchmark_dataset()
 
-    assert 30 <= len(entries) <= 50
+    assert 30 <= len(entries) <= 300
 
     seen_ids = set()
     seen_categories = set()
@@ -51,9 +51,9 @@ def test_benchmark_dataset_includes_official_source_verification_case():
         entry
         for entry in entries
         if entry["expected_behavior"] == "answer"
-        and "nguồn chính thống" in entry["question"].lower()
+        and "nguon chinh thong" in entry["question"].lower()
         and any(
-            "đã đối chiếu nguồn web chính thống" in phrase.lower()
+            "da doi chieu nguon web chinh thong" in phrase.lower()
             for phrase in entry.get("required_phrases", [])
         )
     ]

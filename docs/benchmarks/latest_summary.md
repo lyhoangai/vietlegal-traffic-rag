@@ -1,44 +1,24 @@
 # VietLegal Traffic RAG Benchmark Summary
 
-- Generated: 2026-03-23T09:06:26.794481+00:00
-- Dataset: `datasets/vietlegal-traffic-eval-v1/data.jsonl`
-- Cases per mode: 33
+- Generated: 2026-03-27T11:00:45.901030+00:00
+- Dataset: `datasets/vietlegal-traffic-eval-v2/data.jsonl`
+- Cases per mode: 300
 - Smoke mode: no
 
 ## Overall
 
-| Mode | Cases | Pass Rate | Citation Rate | Reference Match | Avg Confidence | Web Usage |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| full | 33 | 100.0% | 100.0% | 100.0% | 0.741 | 48.5% |
-| no_reranker | 33 | 100.0% | 100.0% | 100.0% | 0.741 | 48.5% |
-| no_web_fallback | 33 | 97.0% | 100.0% | 99.0% | 0.735 | 0.0% |
+| Mode | Cases | Pass Rate | Errors | Citation Rate | Reference Match | Avg Confidence | Web Usage |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| full | 300 | 98.3% | 0 | 100.0% | 99.6% | 0.823 | 70.0% |
 
 ## By Category (full)
 
-| Category | Cases | Pass Rate | Citation Rate | Reference Match | Avg Confidence | Web Usage |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| follow_up | 8 | 100.0% | 100.0% | 100.0% | 0.918 | 75.0% |
-| penalty | 9 | 100.0% | 100.0% | 100.0% | 0.923 | 100.0% |
-| scope_refusal | 8 | 100.0% | 0.0% | 0.0% | 0.200 | 0.0% |
-| speed | 8 | 100.0% | 100.0% | 100.0% | 0.900 | 12.5% |
-
-## By Category (no_reranker)
-
-| Category | Cases | Pass Rate | Citation Rate | Reference Match | Avg Confidence | Web Usage |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| follow_up | 8 | 100.0% | 100.0% | 100.0% | 0.918 | 75.0% |
-| penalty | 9 | 100.0% | 100.0% | 100.0% | 0.923 | 100.0% |
-| scope_refusal | 8 | 100.0% | 0.0% | 0.0% | 0.200 | 0.0% |
-| speed | 8 | 100.0% | 100.0% | 100.0% | 0.900 | 12.5% |
-
-## By Category (no_web_fallback)
-
-| Category | Cases | Pass Rate | Citation Rate | Reference Match | Avg Confidence | Web Usage |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| follow_up | 8 | 100.0% | 100.0% | 100.0% | 0.908 | 0.0% |
-| penalty | 9 | 88.9% | 100.0% | 97.2% | 0.911 | 0.0% |
-| scope_refusal | 8 | 100.0% | 0.0% | 0.0% | 0.200 | 0.0% |
-| speed | 8 | 100.0% | 100.0% | 100.0% | 0.900 | 0.0% |
+| Category | Cases | Pass Rate | Errors | Citation Rate | Reference Match | Avg Confidence | Web Usage |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| follow_up | 45 | 97.8% | 0 | 100.0% | 99.3% | 0.919 | 75.6% |
+| penalty | 170 | 97.6% | 0 | 100.0% | 99.5% | 0.924 | 100.0% |
+| scope_refusal | 40 | 100.0% | 0 | 0.0% | 0.0% | 0.200 | 0.0% |
+| speed | 45 | 100.0% | 0 | 100.0% | 100.0% | 0.900 | 13.3% |
 
 ## Scoring Notes
 

@@ -129,40 +129,36 @@ async def test_tts_endpoint_returns_audio_bytes(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_chat_stream_endpoint_emits_done_with_answer(monkeypatch):
-    async def fake_intent_analyzer(state: dict):
-        return {
-            **state,
+    async def fake_stream_chat_turn(state: dict):
+        yield {
+            "type": "node",
+            "node": "intent_analyzer",
             "intent": "penalty",
             "entities": {"vehicle_type": "o to"},
-            "needs_clarification": False,
+            "collection": "traffic_penalties",
+        }
+        yield {
+            "type": "node",
+            "node": "retriever",
+            "intent": "penalty",
+            "entities": {"vehicle_type": "o to"},
+            "collection": "traffic_penalties",
+            "docs_count": 2,
+        }
+        yield {"type": "node", "node": "web_searcher"}
+        yield {"type": "text", "content": "M"}
+        yield {
+            "type": "done",
+            "state": {
+                **state,
+                "answer": "Muc phat",
+                "confidence": 0.9,
+                "web_docs": ["web_doc"],
+                "sources": ["source_a", "web_source"],
+            },
         }
 
-    async def fake_query_router(state: dict):
-        return {**state, "collection_used": "traffic_penalties"}
-
-    async def fake_retriever(state: dict):
-        return {**state, "retrieved_docs": ["doc_a", "doc_b"], "sources": ["source_a"]}
-
-    async def fake_reranker(state: dict):
-        return {**state, "reranked_docs": ["doc_a", "doc_b"], "sources": ["source_a"]}
-
-    async def fake_web_searcher(state: dict):
-        return {**state, "web_docs": ["web_doc"], "sources": ["source_a", "web_source"]}
-
-    async def fake_stream_with_fallback(prompt: str, state: dict):
-        assert prompt == "prompt"
-        yield "M"
-        yield "uc "
-        yield "phat"
-
-    monkeypatch.setattr(routes, "intent_analyzer", fake_intent_analyzer)
-    monkeypatch.setattr(routes, "query_router", fake_query_router)
-    monkeypatch.setattr(routes, "retriever", fake_retriever)
-    monkeypatch.setattr(routes, "reranker", fake_reranker)
-    monkeypatch.setattr(routes, "web_searcher", fake_web_searcher)
-    monkeypatch.setattr(routes, "stream_with_fallback", fake_stream_with_fallback)
-    monkeypatch.setattr(routes, "build_generator_prompt", lambda state, docs=None: "prompt")
-    monkeypatch.setattr(routes, "finalize_generated_answer", lambda state, answer, docs=None: ("Muc phat", 0.9))
+    monkeypatch.setattr(routes, "stream_chat_turn", fake_stream_chat_turn)
 
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test", timeout=30.0) as client:
         async with client.stream("POST", "/chat/stream", json={"query": "test query", "session_id": "s2"}) as response:
@@ -183,19 +179,18 @@ async def test_chat_stream_endpoint_emits_done_with_answer(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_chat_endpoint_includes_web_used_when_result_has_web_docs(monkeypatch):
-    class FakeAgent:
-        async def ainvoke(self, state: dict):
-            return {
-                **state,
-                "answer": "Cap nhat tu nguon web",
-                "confidence": 0.8,
-                "sources": ["Web · vbpl.vn · Nghi dinh 168/2024/NĐ-CP"],
-                "web_docs": ["[Nguồn web chính thống]"],
-                "intent": "penalty",
-                "llm_provider": "groq",
-            }
+    async def fake_run_chat_turn(state: dict):
+        return {
+            **state,
+            "answer": "Cap nhat tu nguon web",
+            "confidence": 0.8,
+            "sources": ["Web · vbpl.vn · Nghi dinh 168/2024/NĐ-CP"],
+            "web_docs": ["[Nguồn web chính thống]"],
+            "intent": "penalty",
+            "llm_provider": "groq",
+        }
 
-    monkeypatch.setattr(routes, "agent", FakeAgent())
+    monkeypatch.setattr(routes, "run_chat_turn", fake_run_chat_turn)
 
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         response = await client.post("/chat", json={"query": "test query", "session_id": "s3"})

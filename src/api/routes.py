@@ -10,21 +10,8 @@ from pydantic import BaseModel
 from starlette.responses import Response
 from sse_starlette.sse import EventSourceResponse
 
-from src.agent.graph import agent
-from src.agent.nodes import (
-    build_early_answer,
-    build_generator_prompt,
-    clarifier,
-    finalize_generated_answer,
-    get_generation_docs,
-    intent_analyzer,
-    query_router,
-    reranker,
-    retriever,
-    web_searcher,
-)
+from src.agent.chat_flow import run_chat_turn, stream_chat_turn
 from src.eval.db import get_avg_metrics
-from src.llm import stream_with_fallback
 from src.memory.store import (
     delete_session_messages,
     get_recent_sessions,
@@ -131,7 +118,7 @@ async def delete_chat_session(session_id: str):
 async def chat(request: ChatRequest):
     """Non-streaming endpoint. Runs the full graph and returns the final result."""
     state = _make_state(request.query, request.session_id)
-    result = await agent.ainvoke(state)
+    result = await run_chat_turn(state)
     remember_turn(request.session_id, request.query, result.get("answer", ""))
     return _response_payload(result)
 
@@ -142,80 +129,14 @@ async def chat_stream(request: ChatRequest):
     state = _make_state(request.query, request.session_id)
 
     async def event_gen():
-        current_state = await intent_analyzer(state)
-        yield {
-            "data": json.dumps(
-                {
-                    "type": "node",
-                    "node": "intent_analyzer",
-                    "intent": current_state.get("intent"),
-                    "entities": current_state.get("entities"),
-                    "collection": current_state.get("collection_used"),
-                }
-            )
-        }
-
-        if current_state.get("needs_clarification"):
-            current_state = await clarifier(current_state)
-            answer = current_state.get("answer", "")
-            if answer:
-                yield {"data": json.dumps({"type": "text", "content": answer})}
-            remember_turn(request.session_id, request.query, answer)
-            yield {"data": json.dumps(_done_event_payload(current_state))}
-            return
-
-        current_state = await query_router(current_state)
-        current_state = await retriever(current_state)
-        current_state = await reranker(current_state)
-        yield {
-            "data": json.dumps(
-                {
-                    "type": "node",
-                    "node": "retriever",
-                    "intent": current_state.get("intent"),
-                    "entities": current_state.get("entities"),
-                    "collection": current_state.get("collection_used"),
-                    "docs_count": len(current_state.get("reranked_docs", [])),
-                }
-            )
-        }
-
-        yield {"data": json.dumps({"type": "node", "node": "web_searcher"})}
-        current_state = await web_searcher(current_state)
-
-        yield {"data": json.dumps({"type": "node", "node": "generator"})}
-
-        docs = get_generation_docs(current_state)
-        early_answer, early_confidence = build_early_answer(current_state, docs)
-        if early_answer is not None:
-            current_state = {
-                **current_state,
-                "answer": early_answer,
-                "confidence": early_confidence,
-            }
-            yield {"data": json.dumps({"type": "text", "content": early_answer})}
-            remember_turn(request.session_id, request.query, early_answer)
-            yield {"data": json.dumps(_done_event_payload(current_state))}
-            return
-
-        prompt = build_generator_prompt(current_state, docs)
-        chunks = []
-        async for token in stream_with_fallback(prompt, current_state):
-            chunks.append(token)
-            yield {"data": json.dumps({"type": "text", "content": token})}
-
-        raw_answer = "".join(chunks).strip()
-        final_answer, confidence = finalize_generated_answer(current_state, raw_answer, docs)
-        current_state = {
-            **current_state,
-            "answer": final_answer,
-            "confidence": confidence,
-        }
-        if final_answer != raw_answer:
-            yield {"data": json.dumps({"type": "replace", "content": final_answer})}
-
-        remember_turn(request.session_id, request.query, final_answer)
-        yield {"data": json.dumps(_done_event_payload(current_state))}
+        async for event in stream_chat_turn(state):
+            if event.get("type") == "done":
+                current_state = event.get("state", {})
+                remember_turn(request.session_id, request.query, current_state.get("answer", ""))
+                # Keep UTF-8 characters intact for SSE clients.
+                yield {"data": json.dumps(_done_event_payload(current_state), ensure_ascii=False)}
+                return
+            yield {"data": json.dumps(event, ensure_ascii=False)}
 
     return EventSourceResponse(event_gen())
 
